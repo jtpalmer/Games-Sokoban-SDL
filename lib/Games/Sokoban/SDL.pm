@@ -19,9 +19,8 @@ my $size = 32;
 my $grid;
 my @boxes;
 
-my ($player_x,  $player_y,      $player_vx,
-    $player_vy, $player_moving, $player_box
-);
+my ( $player_x, $player_y, $player_vx, $player_vy, $player_moving,
+    $player_direction, $player_box );
 
 my $share_dir = Path::Class::Dir->new('share') or die $!;
 
@@ -101,7 +100,8 @@ sub move_player {
 
     my ( $old_x, $old_y ) = ( $player_x, $player_y );
 
-    $player_moving = 1;
+    $player_moving    = 1;
+    $player_direction = $direction;
     $player->sequence($direction);
     $player->start();
 
@@ -138,7 +138,7 @@ sub move_player {
             }
             else {
                 ($player_box) = grep {
-                    $_->x() eq $player_x * $size
+                           $_->x() eq $player_x * $size
                         && $_->y() eq $player_y * $size
                 } @boxes;
                 $grid->[$player_x][$player_y] = ' ';
@@ -167,15 +167,23 @@ sub handle_event {
             move_player('north') if $e->key_sym == SDLK_UP;
             move_player('south') if $e->key_sym == SDLK_DOWN;
         }
+        else {
+            $player_direction = 'west'  if $e->key_sym == SDLK_LEFT;
+            $player_direction = 'east'  if $e->key_sym == SDLK_RIGHT;
+            $player_direction = 'north' if $e->key_sym == SDLK_UP;
+            $player_direction = 'south' if $e->key_sym == SDLK_DOWN;
+        }
     }
     elsif ( $e->type == SDL_KEYUP ) {
-        if ($player_moving) {
-            $player_moving = 0
-                if $e->key_sym == SDLK_LEFT && $player_vx == -1;
-            $player_moving = 0
-                if $e->key_sym == SDLK_RIGHT && $player_vx == 1;
-            $player_moving = 0 if $e->key_sym == SDLK_UP && $player_vy == -1;
-            $player_moving = 0 if $e->key_sym == SDLK_DOWN && $player_vy == 1;
+        if ($player_direction) {
+            $player_direction = undef
+                if $e->key_sym == SDLK_LEFT && $player_direction eq 'west';
+            $player_direction = undef
+                if $e->key_sym == SDLK_RIGHT && $player_direction eq 'east';
+            $player_direction = undef
+                if $e->key_sym == SDLK_UP && $player_direction eq 'north';
+            $player_direction = undef
+                if $e->key_sym == SDLK_DOWN && $player_direction eq 'south';
         }
     }
 
@@ -194,27 +202,19 @@ sub handle_move {
     }
 
     if ( $player_vx && $player_x * $size == $x ) {
-        $player_box = undef;
-        if ( !$player_moving ) {
-            $player_vx = 0;
-            $player->stop();
-        }
-        else {
-            move_player('west') if $player_vx == -1;
-            move_player('east') if $player_vx == 1;
-        }
+        $player_box    = undef;
+        $player_moving = undef;
+        $player_vx     = 0;
+        $player->stop();
+        move_player($player_direction) if $player_direction;
     }
 
     if ( $player_vy && $player_y * $size == $y ) {
-        $player_box = undef;
-        if ( !$player_moving ) {
-            $player_vy = 0;
-            $player->stop();
-        }
-        else {
-            move_player('north') if $player_vy == -1;
-            move_player('south') if $player_vy == 1;
-        }
+        $player_box    = undef;
+        $player_moving = undef;
+        $player_vy     = 0;
+        $player->stop();
+        move_player($player_direction) if $player_direction;
     }
 
     $player->x($x);

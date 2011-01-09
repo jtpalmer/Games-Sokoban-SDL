@@ -49,6 +49,8 @@ sub init_level {
     my $level
         = Games::Sokoban->new_from_file( $share_dir->file('level1.sok') );
 
+    @boxes = ();
+
     $background->draw_rect( [ 0, 0, 640, 480 ], 0x000000ff );
     my ( $x, $y ) = ( 0, 0 );
     foreach my $row ( $level->as_lines ) {
@@ -161,6 +163,8 @@ sub handle_event {
     my ( $e, $app ) = @_;
 
     if ( $e->type == SDL_KEYDOWN ) {
+        init_level() if SDL::Events::get_key_name($e->key_sym) eq 'r';
+
         if ( !$player_moving && !$player_vx && !$player_vy ) {
             move_player('west')  if $e->key_sym == SDLK_LEFT;
             move_player('east')  if $e->key_sym == SDLK_RIGHT;

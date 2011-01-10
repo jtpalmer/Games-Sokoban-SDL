@@ -42,8 +42,8 @@ sub init_level {
     foreach my $row ( $level->as_lines ) {
         $x = 0;
         foreach my $element ( split //, $row ) {
+            $grid->[$x][$y] = $element;
             given ($element) {
-                $grid->[$x][$y] = $_;
                 when ('#') {
                     $wall->blit( $background, undef,
                         [ $x * $size, $y * $size, $size, $size ] );

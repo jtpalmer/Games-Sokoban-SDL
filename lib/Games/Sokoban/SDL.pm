@@ -67,7 +67,7 @@ sub init_level {
                     $player_y      = $y;
                     $player_vx     = 0;
                     $player_vy     = 0;
-                    $player_moving = 0;
+                    $player_moving = undef;
                     $player->stop();
                     $player->x( $x * $size );
                     $player->y( $y * $size );
@@ -135,7 +135,7 @@ sub move_player {
         $player_y      = $old_y;
         $player_vx     = 0;
         $player_vy     = 0;
-        $player_moving = 0;
+        $player_moving = undef;
         $player->stop();
     }
 }

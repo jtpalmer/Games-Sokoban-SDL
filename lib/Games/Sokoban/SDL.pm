@@ -214,6 +214,7 @@ sub handle_show {
 
 sub run {
     my $app = SDLx::App->new(
+        title        => 'Sokoban',
         w            => 640,
         h            => 480,
         exit_on_quit => 1,

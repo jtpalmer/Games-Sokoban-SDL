@@ -38,7 +38,7 @@ sub init_level {
     my $level = Games::Sokoban->new_from_file( $share->file('level1.sok') );
 
     @boxes = ();
-    $background->draw_rect( undef, 0x000000ff );
+    $background->draw_rect( undef, 0x000000FF );
 
     my ( $x, $y ) = ( 0, 0 );
     foreach my $row ( $level->as_lines ) {

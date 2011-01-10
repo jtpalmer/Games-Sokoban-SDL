@@ -244,7 +244,7 @@ $app->add_show_handler( \&handle_show );
 $app->add_event_handler( \&handle_event );
 $app->add_move_handler( \&handle_move );
 
-$player->alpha_key( [ 0, 0, 0 ] );
+$player->alpha_key( [ 255, 0, 0 ] );
 init_level();
 $app->run();
 

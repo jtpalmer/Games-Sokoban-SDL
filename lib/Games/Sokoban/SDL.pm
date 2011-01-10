@@ -23,11 +23,10 @@ my ( $player, $player_x, $player_y, $player_vx, $player_vy, $player_moving,
 
 my ( $background, $wall, $box, $goal );
 
-my $share_dir;
+my $share;
 
 sub init_level {
-    my $level
-        = Games::Sokoban->new_from_file( $share_dir->file('level1.sok') );
+    my $level = Games::Sokoban->new_from_file( $share->file('level1.sok') );
 
     @boxes = ();
 
@@ -218,16 +217,16 @@ sub run {
     $app->add_event_handler( \&handle_event );
     $app->add_move_handler( \&handle_move );
 
-    $share_dir = Path::Class::Dir->new('share') or die $!;
+    $share = Path::Class::Dir->new('share') or die $!;
 
     $background = SDLx::Surface->new( w => 640, h => 480 );
 
-    $wall = SDLx::Surface->load( $share_dir->file('wall.bmp') );
-    $box  = SDLx::Surface->load( $share_dir->file('box.bmp') );
-    $goal = SDLx::Surface->load( $share_dir->file('goal.bmp') );
+    $wall = SDLx::Surface->load( $share->file('wall.bmp') );
+    $box  = SDLx::Surface->load( $share->file('box.bmp') );
+    $goal = SDLx::Surface->load( $share->file('goal.bmp') );
 
     $player = SDLx::Sprite::Animated->new(
-        image           => $share_dir->file('player.bmp'),
+        image           => $share->file('player.bmp'),
         rect            => SDL::Rect->new( 0, 0, $size, $size ),
         ticks_per_frame => 10,
         sequences       => {

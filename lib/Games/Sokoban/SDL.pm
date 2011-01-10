@@ -19,15 +19,17 @@ my $size = 32;
 # Game state
 my $grid;
 
-# Player state
-my ( $player_x, $player_y, $player_vx, $player_vy, $player_moving,
-    $player_direction, $player_box );
+# Player position and velocity
+my ( $player_x, $player_y, $player_vx, $player_vy );
+
+# Player game state
+my ( $player_moving, $player_direction, $player_box );
 
 # Surfaces
 my ( $background, $wall, $box, $goal );
 
 # Sprites
-my ($player, @boxes);
+my ( $player, @boxes );
 
 # Share directory
 my $share;
@@ -120,8 +122,7 @@ sub move_player {
             }
             else {
                 ($player_box) = grep {
-                           $_->x() eq $player_x * $size
-                        && $_->y() eq $player_y * $size
+                    $_->x == $player_x * $size && $_->y == $player_y * $size
                 } @boxes;
                 $grid->[$player_x][$player_y] = ' ';
                 $grid->[$box_x][$box_y]       = '$';
@@ -177,15 +178,15 @@ sub handle_event {
 sub handle_move {
     my ( $step, $app, $t ) = @_;
 
-    my $x = $player->x + $player_vx;
-    my $y = $player->y + $player_vy;
+    $player->x( $player->x + $player_vx );
+    $player->y( $player->y + $player_vy );
 
     if ($player_box) {
         $player_box->x( $player_box->x + $player_vx );
         $player_box->y( $player_box->y + $player_vy );
     }
 
-    if ( $player_vx && $player_x * $size == $x ) {
+    if ( $player_vx && $player_x * $size == $player->x ) {
         $player_box    = undef;
         $player_moving = undef;
         $player_vx     = 0;
@@ -193,16 +194,13 @@ sub handle_move {
         move_player($player_direction) if $player_direction;
     }
 
-    if ( $player_vy && $player_y * $size == $y ) {
+    if ( $player_vy && $player_y * $size == $player->y ) {
         $player_box    = undef;
         $player_moving = undef;
         $player_vy     = 0;
         $player->stop();
         move_player($player_direction) if $player_direction;
     }
-
-    $player->x($x);
-    $player->y($y);
 }
 
 sub handle_show {

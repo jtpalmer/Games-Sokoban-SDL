@@ -13,24 +13,29 @@ use SDLx::Sprite::Animated;
 use Games::Sokoban;
 use Path::Class;
 
+# Tile width and height
 my $size = 32;
 
+# Game state
 my $grid;
 my @boxes;
 
+# Player state
 my ( $player, $player_x, $player_y, $player_vx, $player_vy, $player_moving,
     $player_direction, $player_box );
 
+# Surfaces
 my ( $background, $wall, $box, $goal );
 
+# Share directory
 my $share;
 
 sub init_level {
     my $level = Games::Sokoban->new_from_file( $share->file('level1.sok') );
 
     @boxes = ();
-
     $background->draw_rect( undef, 0x000000ff );
+
     my ( $x, $y ) = ( 0, 0 );
     foreach my $row ( $level->as_lines ) {
         $x = 0;
@@ -220,10 +225,9 @@ sub run {
     $share = Path::Class::Dir->new('share') or die $!;
 
     $background = SDLx::Surface->new( w => 640, h => 480 );
-
-    $wall = SDLx::Surface->load( $share->file('wall.bmp') );
-    $box  = SDLx::Surface->load( $share->file('box.bmp') );
-    $goal = SDLx::Surface->load( $share->file('goal.bmp') );
+    $wall       = SDLx::Surface->load( $share->file('wall.bmp') );
+    $box        = SDLx::Surface->load( $share->file('box.bmp') );
+    $goal       = SDLx::Surface->load( $share->file('goal.bmp') );
 
     $player = SDLx::Sprite::Animated->new(
         image           => $share->file('player.bmp'),

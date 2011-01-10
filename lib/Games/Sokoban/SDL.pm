@@ -18,14 +18,16 @@ my $size = 32;
 
 # Game state
 my $grid;
-my @boxes;
 
 # Player state
-my ( $player, $player_x, $player_y, $player_vx, $player_vy, $player_moving,
+my ( $player_x, $player_y, $player_vx, $player_vy, $player_moving,
     $player_direction, $player_box );
 
 # Surfaces
 my ( $background, $wall, $box, $goal );
+
+# Sprites
+my ($player, @boxes);
 
 # Share directory
 my $share;

@@ -224,7 +224,7 @@ sub run {
 
     $share = Path::Class::Dir->new('share') or die $!;
 
-    $background = SDLx::Surface->new( w => 640, h => 480 );
+    $background = SDLx::Surface->new( w => $app->w, h => $app->h );
     $wall       = SDLx::Surface->load( $share->file('wall.bmp') );
     $box        = SDLx::Surface->load( $share->file('box.bmp') );
     $goal       = SDLx::Surface->load( $share->file('goal.bmp') );

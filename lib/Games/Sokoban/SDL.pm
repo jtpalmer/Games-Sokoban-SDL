@@ -51,7 +51,7 @@ sub init_level {
 
     @boxes = ();
 
-    $background->draw_rect( [ 0, 0, 640, 480 ], 0x000000ff );
+    $background->draw_rect( undef, 0x000000ff );
     my ( $x, $y ) = ( 0, 0 );
     foreach my $row ( $level->as_lines ) {
         $x = 0;
@@ -59,18 +59,12 @@ sub init_level {
             given ($element) {
                 $grid->[$x][$y] = $_;
                 when ('#') {
-                    $wall->blit(
-                        $background,
-                        [ 0,          0,          $size, $size ],
-                        [ $x * $size, $y * $size, $size, $size ]
-                    );
+                    $wall->blit( $background, undef,
+                        [ $x * $size, $y * $size, $size, $size ] );
                 }
                 when ('.') {
-                    $goal->blit(
-                        $background,
-                        [ 0,          0,          $size, $size ],
-                        [ $x * $size, $y * $size, $size, $size ]
-                    );
+                    $goal->blit( $background, undef,
+                        [ $x * $size, $y * $size, $size, $size ] );
                 }
                 when ('$') {
                     push @boxes,
@@ -94,7 +88,6 @@ sub init_level {
         }
         $y++;
     }
-
 }
 
 sub move_player {
@@ -163,7 +156,7 @@ sub handle_event {
     my ( $e, $app ) = @_;
 
     if ( $e->type == SDL_KEYDOWN ) {
-        init_level() if SDL::Events::get_key_name($e->key_sym) eq 'r';
+        init_level() if SDL::Events::get_key_name( $e->key_sym ) eq 'r';
 
         if ( !$player_moving && !$player_vx && !$player_vy ) {
             move_player('west')  if $e->key_sym == SDLK_LEFT;

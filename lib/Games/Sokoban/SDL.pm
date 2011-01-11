@@ -29,7 +29,7 @@ my ( $player_moving, $player_direction, $player_box );
 my ( $background, $wall, $box, $goal );
 
 # Sprites
-my ( $player, @boxes );
+my ( $player, @boxes, @goals );
 
 # Share directory
 my $share;
@@ -51,8 +51,18 @@ sub init_level {
                         [ $x * $size, $y * $size, $size, $size ] );
                 }
                 when ('.') {
-                    $goal->blit( $background, undef,
-                        [ $x * $size, $y * $size, $size, $size ] );
+                    my $goal = SDLx::Sprite::Animated->new(
+                        surface => $goal,
+                        rect => SDL::Rect->new( $x * $size, $y * $size, $size, $size),
+                        ticks_per_frame => 20,
+                        type => 'reverse',
+                        sequences => {
+                            'blink' => [ [0, 0], [1, 0], [2, 0], [3, 0] ],
+                        },
+                        sequence => 'blink',
+                    );
+                    $goal->start();
+                    push @goals, $goal;
                 }
                 when ('$') {
                     push @boxes,
@@ -207,6 +217,7 @@ sub handle_show {
     my ( $delta, $app ) = @_;
 
     $background->blit($app);
+    foreach my $goal (@goals) { $goal->draw($app); }
     foreach my $box (@boxes) { $box->draw($app); }
     $player->draw($app);
     $app->update();

@@ -56,10 +56,6 @@ sub init_level {
                         rect => SDL::Rect->new( $x * $size, $y * $size, $size, $size),
                         ticks_per_frame => 20,
                         type => 'reverse',
-                        sequences => {
-                            'blink' => [ [0, 0], [1, 0], [2, 0], [3, 0] ],
-                        },
-                        sequence => 'blink',
                     );
                     $goal->start();
                     push @goals, $goal;

@@ -4,9 +4,11 @@ use warnings;
 
 use SDL;
 use SDL::Event;
+use SDL::Rect;
 use SDLx::App;
-use SDLx::Surface;
 use SDLx::Sprite;
+use SDLx::Sprite::Animated;
+use SDLx::Surface;
 use Path::Class::Dir;
 use Games::Sokoban;
 
@@ -76,12 +78,20 @@ sub init_player {
     %PLAYER = (
         x      => $x,
         y      => $y,
-        sprite => SDLx::Sprite->new(
+        sprite => SDLx::Sprite::Animated->new(
             surface => $SURFACES{player},
-            x       => $x * $SIZE,
-            y       => $y * $SIZE,
-        ),
+            rect    => SDL::Rect->new( $x * $SIZE, $y * $SIZE, $SIZE, $SIZE ),
+            ticks_per_frame => 10,
+            sequences       => {
+                'north' => [ [ 0, 1 ], [ 0, 2 ], [ 0, 0 ] ],
+                'south' => [ [ 2, 1 ], [ 2, 2 ], [ 2, 0 ] ],
+                'west'  => [ [ 3, 0 ], [ 3, 1 ], [ 3, 2 ] ],
+                'east'  => [ [ 1, 0 ], [ 1, 1 ], [ 1, 2 ] ],
+            },
+            sequence => 'south',
+            )->alpha_key( [ 255, 0, 0 ] ),
     );
+    $PLAYER{sprite};
 }
 
 sub init_wall {
@@ -121,16 +131,23 @@ sub init_goal {
         {
         x      => $x,
         y      => $y,
-        sprite => SDLx::Sprite->new(
+        sprite => SDLx::Sprite::Animated->new(
             surface => $SURFACES{goal},
-            x       => $x * $SIZE,
-            y       => $y * $SIZE,
-        ),
+            rect    => SDL::Rect->new( $x * $SIZE, $y * $SIZE, $SIZE, $SIZE ),
+            ticks_per_frame => 10,
+            type            => 'reverse',
+            )->start(),
         };
 }
 
 sub move_player {
     my ($direction) = @_;
+
+    $PLAYER{want_direction} = $direction;
+
+    return if $PLAYER{moving};
+
+    $PLAYER{sprite}->sequence($direction);
 
     my ( $dx, $dy ) = ( 0, 0 );
     $dx = -1 if $direction eq 'west';
@@ -152,17 +169,25 @@ sub move_player {
             return;
         }
         else {
-            $box->{x} = $box_x;
-            $box->{y} = $box_y;
-            $box->{sprite}->x( $box_x * $SIZE );
-            $box->{sprite}->y( $box_y * $SIZE );
+            $box->{x}    = $box_x;
+            $box->{y}    = $box_y;
+            $PLAYER{box} = $box;
         }
     }
 
-    $PLAYER{x} = $x;
-    $PLAYER{y} = $y;
-    $PLAYER{sprite}->x( $x * $SIZE );
-    $PLAYER{sprite}->y( $y * $SIZE );
+    $PLAYER{x}         = $x;
+    $PLAYER{y}         = $y;
+    $PLAYER{dx}        = $dx;
+    $PLAYER{dy}        = $dy;
+    $PLAYER{moving}    = 1;
+    $PLAYER{direction} = $direction;
+    $PLAYER{sprite}->start();
+
+    return 1;
+}
+
+sub stop_player {
+    $PLAYER{want_direction} = undef;
 }
 
 sub wall_at {
@@ -192,9 +217,44 @@ sub handle_event {
         move_player('north') if $event->key_sym == SDLK_UP;
         move_player('south') if $event->key_sym == SDLK_DOWN;
     }
+    elsif ( $event->type == SDL_KEYUP ) {
+        stop_player() if $event->key_sym == SDLK_LEFT;
+        stop_player() if $event->key_sym == SDLK_RIGHT;
+        stop_player() if $event->key_sym == SDLK_UP;
+        stop_player() if $event->key_sym == SDLK_DOWN;
+    }
+}
+
+sub handle_move {
+    return unless $PLAYER{moving};
+
+    $PLAYER{sprite}->x( $PLAYER{sprite}->x + $PLAYER{dx} );
+    $PLAYER{sprite}->y( $PLAYER{sprite}->y + $PLAYER{dy} );
+
+    if ( my $box = $PLAYER{box} ) {
+        $box->{sprite}->x( $box->{sprite}->x + $PLAYER{dx} );
+        $box->{sprite}->y( $box->{sprite}->y + $PLAYER{dy} );
+    }
+
+    if ( $PLAYER{dx} && $PLAYER{sprite}->x == $PLAYER{x} * $SIZE ) {
+        $PLAYER{box}    = undef;
+        $PLAYER{moving} = undef;
+        $PLAYER{dx}     = 0;
+        $PLAYER{sprite}->stop();
+        move_player( $PLAYER{want_direction} ) if $PLAYER{want_direction};
+    }
+
+    if ( $PLAYER{dy} && $PLAYER{sprite}->y == $PLAYER{y} * $SIZE ) {
+        $PLAYER{box}    = undef;
+        $PLAYER{moving} = undef;
+        $PLAYER{dy}     = 0;
+        $PLAYER{sprite}->stop();
+        move_player( $PLAYER{want_direction} ) if $PLAYER{want_direction};
+    }
 }
 
 sub handle_show {
+    $APP->draw_rect( undef, 0x000000FF );
     foreach my $wall (@WALLS) { $wall->{sprite}->draw($APP); }
     foreach my $goal (@GOALS) { $goal->{sprite}->draw($APP); }
     foreach my $box  (@BOXES) { $box->{sprite}->draw($APP); }
@@ -203,6 +263,7 @@ sub handle_show {
 }
 
 $APP->add_event_handler( \&handle_event );
+$APP->add_move_handler( \&handle_move );
 $APP->add_show_handler( \&handle_show );
 init_level( Games::Sokoban->new_from_file( $SHARE->file('level1.sok') ) );
 $APP->run();

@@ -187,7 +187,9 @@ sub move_player {
 }
 
 sub stop_player {
-    $PLAYER{want_direction} = undef;
+    my ($direction) = @_;
+
+    $PLAYER{want_direction} = undef if $PLAYER{want_direction} eq $direction;
 }
 
 sub wall_at {
@@ -218,10 +220,10 @@ sub handle_event {
         move_player('south') if $event->key_sym == SDLK_DOWN;
     }
     elsif ( $event->type == SDL_KEYUP ) {
-        stop_player() if $event->key_sym == SDLK_LEFT;
-        stop_player() if $event->key_sym == SDLK_RIGHT;
-        stop_player() if $event->key_sym == SDLK_UP;
-        stop_player() if $event->key_sym == SDLK_DOWN;
+        stop_player('west')  if $event->key_sym == SDLK_LEFT;
+        stop_player('east')  if $event->key_sym == SDLK_RIGHT;
+        stop_player('north') if $event->key_sym == SDLK_UP;
+        stop_player('south') if $event->key_sym == SDLK_DOWN;
     }
 }
 

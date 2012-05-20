@@ -11,6 +11,9 @@ use SDLx::Surface;
 use Path::Class::Dir;
 use Games::Sokoban;
 
+# PODNAME: sokoban.pl
+# ABSTRACT: Play the game
+
 my $SIZE = 32;
 
 my %PLAYER;

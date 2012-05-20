@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-
 use SDL;
 use SDL::Event;
 use SDL::Rect;
@@ -97,8 +96,7 @@ sub init_player {
 sub init_wall {
     my ( $x, $y ) = @_;
 
-    push @WALLS,
-        {
+    push @WALLS => {
         x      => $x,
         y      => $y,
         sprite => SDLx::Sprite->new(
@@ -106,14 +104,13 @@ sub init_wall {
             x       => $x * $SIZE,
             y       => $y * $SIZE,
         ),
-        };
+    };
 }
 
 sub init_box {
     my ( $x, $y ) = @_;
 
-    push @BOXES,
-        {
+    push @BOXES => {
         x      => $x,
         y      => $y,
         sprite => SDLx::Sprite->new(
@@ -121,14 +118,13 @@ sub init_box {
             x       => $x * $SIZE,
             y       => $y * $SIZE,
         ),
-        };
+    };
 }
 
 sub init_goal {
     my ( $x, $y ) = @_;
 
-    push @GOALS,
-        {
+    push @GOALS => {
         x      => $x,
         y      => $y,
         sprite => SDLx::Sprite::Animated->new(
@@ -137,7 +133,7 @@ sub init_goal {
             ticks_per_frame => 10,
             type            => 'reverse',
             )->start(),
-        };
+    };
 }
 
 sub move_player {
@@ -269,3 +265,4 @@ $APP->add_move_handler( \&handle_move );
 $APP->add_show_handler( \&handle_show );
 init_level( Games::Sokoban->new_from_file( $SHARE->file('level1.sok') ) );
 $APP->run();
+

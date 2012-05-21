@@ -8,7 +8,7 @@ BEGIN {
     }
 }
 
-use SDL;
+use SDL 2.500;
 use SDL::Event;
 use SDL::Rect;
 use SDLx::App;
